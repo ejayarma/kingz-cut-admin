@@ -20,7 +20,7 @@ const poppins = Poppins({
 
 export const metadata: Metadata = {
   title: "Kingz Cut Admin",
-  description: " ho ho",
+  description: "Back office portal for Kingz cut Barbering Salon",
 };
 
 export default function RootLayout({
