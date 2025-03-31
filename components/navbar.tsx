@@ -17,10 +17,11 @@ const NavLink = ({ href, children }: { href: string; children: ReactNode }) => {
 const Navbar = () => {
     return (
         <nav className="flex justify-center p-4">
-            <NavLink href="/">Dashboard</NavLink>
-            <NavLink href="/appointments">Customer Appointments</NavLink>
-            <NavLink href="/schedule">Staff Schedule</NavLink>
-            <NavLink href="/settings">Settings</NavLink>
+            <NavLink href="/dashboard">Dashboard</NavLink>
+            <NavLink href="/dashboard/appointments">Customer Appointments</NavLink>
+            <NavLink href="/dashboard/staff">Staff List</NavLink>
+            <NavLink href="/dashboard/schedule">Staff Schedule</NavLink>
+            <NavLink href="/dashboard/settings">Settings</NavLink>
         </nav>
     );
 };
