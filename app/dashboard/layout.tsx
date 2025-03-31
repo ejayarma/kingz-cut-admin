@@ -6,6 +6,9 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import Navbar from "@/components/navbar"
 import { Bell, Search, Settings } from "lucide-react"
+import { useRouter } from 'next/navigation'
+import { Popover } from "@/components/ui/popover"
+import { PopoverContent, PopoverTrigger } from "@radix-ui/react-popover"
 
 
 
@@ -14,6 +17,10 @@ export default function DashboardLayout({
 }: {
     children: React.ReactNode
 }) {
+    const router = useRouter()
+    const handleSettingsClick = () => {
+        router.push("/dashboard/settings")
+    }
     return (
 
         <section className="min-h-screen bg-gray-100">
@@ -33,16 +40,51 @@ export default function DashboardLayout({
                                 placeholder="Search for something"
                             />
                         </div>
-                        <Button variant="ghost" size="icon" className="text-gray-500 bg-gray-200 rounded-full focus:bg-gray-300 hover:bg-gray-300">
+                        <Button title="Settings" onClick={handleSettingsClick} variant="ghost" size="icon" className="text-gray-500 bg-gray-200 rounded-full focus:bg-gray-300 hover:bg-gray-300">
                             <Settings className="size-5 stroke-slate-400" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="text-gray-500 bg-gray-200 rounded-full focus:bg-gray-300 hover:bg-gray-300">
-                            <Bell className="size-5 stroke-red-400" />
-                        </Button>
-                        <Avatar className="size-12">
-                            <AvatarImage src="/avatar.png" />
-                            <AvatarFallback className="bg-orange-200">JD</AvatarFallback>
-                        </Avatar>
+
+                        <Popover >
+                            <PopoverTrigger>
+                                <div className="relative">
+                                    <div className="span size-4.5 p-0.5 rounded-full absolute bg-red-500 right-0 -top-1 animate-ping"></div>
+                                    <div className="span size-4.5 p-0.5 rounded-full absolute bg-red-500 right-0 -top-1 text-[10px] text-white">9+</div>
+                                    <div title="Notifications" className="flex size-9 items-center justify-center text-gray-500 bg-gray-200 rounded-full focus:bg-gray-300 hover:bg-gray-300">
+                                        <Bell className="size-5 stroke-red-400" />
+                                    </div>
+                                </div>
+                            </PopoverTrigger>
+                            <PopoverContent
+                                className="w-56 overflow-hidden rounded-lg p-4 shadow-lg bg-white"
+                                sideOffset={5}
+                                align="end"
+                            >
+                                <p className="font-bold">Notifications</p>
+
+                                <Button className="w-full mt-4">View All</Button>
+
+                            </PopoverContent>
+                        </Popover>
+
+                        <Popover >
+                            <PopoverTrigger>
+                                <Avatar className="size-12 hover:border-white hover:border-2">
+                                    <AvatarImage src="/avatar.png" />
+                                    <AvatarFallback className="bg-orange-200">JD</AvatarFallback>
+                                </Avatar>
+                            </PopoverTrigger>
+                            <PopoverContent
+                                className="w-50 overflow-hidden rounded-lg p-4 shadow-lg bg-white"
+                                sideOffset={5}
+                                align="end"
+                            >
+                                <p className="font-bold">Admin</p>
+                                <p className="font-light">admin@admin.com</p>
+                                <Button variant="outline" className="float-end mt-4">Logout</Button>
+
+                            </PopoverContent>
+                        </Popover>
+
                     </div>
                 </div>
 
