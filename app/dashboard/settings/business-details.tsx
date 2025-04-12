@@ -189,12 +189,10 @@ export function BusinessDetails() {
                         <DialogHeader>
                             <DialogTitle className="text-center">Update Business Details</DialogTitle>
                             <DialogDescription className="text-center">
-                                Fill in details about your salon
+                                <div className="mb-4">Fill in details about your salon</div>
 
-                                <div className="mt-4">
-                                    <BusinessDetailsForm />
+                                <BusinessDetailsForm />
 
-                                </div>
 
                             </DialogDescription>
                         </DialogHeader>
