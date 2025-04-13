@@ -1,3 +1,4 @@
+"use client"
 // import { Button } from "@/components/ui/button";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -159,7 +160,7 @@ function BusinessDetailsForm() {
 }
 
 
-export function BusinessDetails() {
+export default function BusinessDetails() {
     return (
         <div>
             <h1 className="font-bold text-2xl">Business Profile</h1>
@@ -189,12 +190,9 @@ export function BusinessDetails() {
                         <DialogHeader>
                             <DialogTitle className="text-center">Update Business Details</DialogTitle>
                             <DialogDescription className="text-center">
-                                <div className="mb-4">Fill in details about your salon</div>
-
-                                <BusinessDetailsForm />
-
-
+                                Fill in details about your salon
                             </DialogDescription>
+                            <BusinessDetailsForm />
                         </DialogHeader>
                     </DialogContent>
                 </Dialog>
