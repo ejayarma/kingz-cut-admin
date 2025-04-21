@@ -319,7 +319,7 @@ export default function StaffWorkSchedule() {
                 </div>
 
                 {/* View mode selector */}
-                <div className="flex justify-end mb-4">
+                {/* <div className="flex justify-end mb-4">
                     <div className="flex border rounded-md overflow-hidden">
                         <button
                             onClick={() => setView(Views.MONTH)}
@@ -340,7 +340,7 @@ export default function StaffWorkSchedule() {
                             Day
                         </button>
                     </div>
-                </div>
+                </div> */}
             </div>
 
             <div className="grid grid-cols-[250px_1fr] gap-4">
