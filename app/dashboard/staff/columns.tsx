@@ -15,8 +15,7 @@ import {
 import { DataTableColumnHeader } from "@/components/data-table-column-header"
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTrigger } from "@/components/ui/dialog"
 import { DialogTitle } from "@radix-ui/react-dialog"
-import Image from "next/image"
-import { formatDateStr } from "@/lib/utils"
+import { StaffReviewsModal } from "./staff-reviews-modal"
 
 export type Payment = {
     id: string
@@ -137,57 +136,12 @@ export const columns: ColumnDef<Staff>[] = [
                     </DropdownMenu>
 
 
-                    <DialogContent className="sm:max-w-md md:max-w-lg lg:max-w-xl">
+                    <DialogContent className="sm:max-w-3xl md:max-w-4xl">
                         <DialogHeader>
-                            <DialogTitle className="font-bold text-center">Appointment Receipt</DialogTitle>
+                            <DialogTitle className="font-bold text-center">Customer reviews</DialogTitle>
                         </DialogHeader>
-                        <div className="">
-                            <div className="flex justify-between mb-4">
-                                <Image src="/receipt-qr.png" width={100} height={100} alt="qr code" />
-                                <p className="inline-flex  gap-4">
-                                    <span className="text-sm font-semibold">Receipt ID</span>
-                                    <span className="text-sm font-medium text-gray-500">#{1}</span>
-                                </p>
-                            </div>
-                            <div className="border rounded divide-y">
-                                <div className="flex items-center justify-between px-4 py-2">
-                                    <span className="text-sm font-semibold">Salon</span>
-                                    <span className="text-sm font-medium text-gray-500">Kingz Cut Barbering Salon</span>
-                                </div>
-                                <div className="flex items-center justify-between px-4 py-2 ">
-                                    <span className="text-sm font-semibold">Location</span>
-                                    <span className="text-sm font-medium text-gray-500">{1}</span>
-                                </div>
-                                <div className="flex items-center justify-between px-4 py-2">
-                                    <span className="text-sm font-semibold">Customer Name</span>
-                                    <span className="text-sm font-medium text-gray-500">{1}</span>
-                                </div>
-                                <div className="flex items-center justify-between px-4 py-2 ">
-                                    <span className="text-sm font-semibold">Customer Phone</span>
-                                    <span className="text-sm font-medium text-gray-500">{1}</span>
-                                </div>
-                                <div className="flex items-center justify-between px-4 py-2 ">
-                                    <span className="text-sm font-semibold">Booking Date</span>
-                                    <span className="text-sm font-medium text-gray-500">{1}</span>
-                                </div>
-                                <div className="flex items-center justify-between px-4 py-2 ">
-                                    <span className="text-sm font-semibold">Booking Time</span>
-                                    <span className="text-sm font-medium text-gray-500">{1}</span>
-                                </div>
-                                <div className="flex items-center justify-between px-4 py-2 ">
-                                    <span className="text-sm font-semibold">Stylist</span>
-                                    <span className="text-sm font-medium text-gray-500">Jeremy Paul</span>
-                                </div>
-                                <div className="flex items-center justify-between px-4 py-2 ">
-                                    <span className="text-sm font-semibold">Services</span>
-                                    <span className="text-sm font-medium text-gray-500">{1}</span>
-                                </div>
-                                <div className="flex items-center justify-between px-4 py-2 bg-gray-100">
-                                    <span className="text-sm font-bold">Total</span>
-                                    <span className="text-sm font-bold">GHS 15.00</span>
-                                </div>
-                            </div>
-                        </div>
+                        <StaffReviewsModal staffId={row.original.id} />
+
                         <DialogFooter className="sm:justify-start">
                             <DialogClose asChild>
                                 <Button type="button" variant="secondary">
