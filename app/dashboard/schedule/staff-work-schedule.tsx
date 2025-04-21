@@ -1,10 +1,9 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Calendar, dateFnsLocalizer, Views } from 'react-big-calendar';
+import { Calendar, dateFnsLocalizer, View, Views } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { ChevronLeft, ChevronRight, Search, X } from 'lucide-react';
-import Image from 'next/image';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
@@ -24,15 +23,15 @@ const localizer = dateFnsLocalizer({
 });
 
 // Define types for our data
-type Staff = {
+interface Staff {
     id: number;
     name: string;
     avatar: string;
-};
+}
 
 type AppointmentType = 'Haircut' | 'Beard Grooming' | 'Hair Coloring' | 'Wash & Styling';
 
-type Appointment = {
+interface Appointment {
     id: number;
     staffId: number;
     clientName: string;
@@ -40,19 +39,28 @@ type Appointment = {
     start: Date;
     end: Date;
     color: string;
-};
+}
+
+interface CalendarEvent extends Appointment {
+    title: string;
+    resource: Staff | undefined;
+}
+
+interface EventComponentProps {
+    event: CalendarEvent;
+}
 
 export default function StaffWorkSchedule() {
     // Current date state
-    const [currentDate, setCurrentDate] = useState(new Date(2025, 3, 4)); // April 4, 2025
-    const [view, setView] = useState<string>(Views.WEEK);
+    const [currentDate, setCurrentDate] = useState<Date>(new Date(2025, 3, 4)); // April 4, 2025
+    const [view, setView] = useState<View>(Views.WEEK);
 
     // UI States
     const [selectedAppointmentTypes, setSelectedAppointmentTypes] = useState<AppointmentType[]>([
         'Haircut', 'Beard Grooming', 'Hair Coloring', 'Wash & Styling'
     ]);
     const [selectedStaff, setSelectedStaff] = useState<number[]>([]);
-    const [selectAll, setSelectAll] = useState(true);
+    const [selectAll, setSelectAll] = useState<boolean>(true);
 
     // Mock data for staff
     const staffList: Staff[] = [
@@ -68,7 +76,7 @@ export default function StaffWorkSchedule() {
     ];
 
     // Helper to create date for appointment
-    const createAppointmentDate = (dayOfWeek: number, timeStr: string) => {
+    const createAppointmentDate = (dayOfWeek: number, timeStr: string): Date => {
         const date = new Date(2025, 3, dayOfWeek); // April 2025, with day of week
         const [hour, minutePart] = timeStr.split(':');
         const [minute, period] = minutePart.split(' ');
@@ -236,7 +244,7 @@ export default function StaffWorkSchedule() {
     };
 
     // Custom event component for the calendar
-    const EventComponent = ({ event }: any) => {
+    const EventComponent = ({ event }: EventComponentProps) => {
         const appointmentType = event.type as AppointmentType;
         return (
             <div
@@ -245,39 +253,7 @@ export default function StaffWorkSchedule() {
             >
                 <div className="font-semibold">{event.clientName}</div>
                 <div>{format(event.start, 'h:mm a')} - {format(event.end, 'h:mm a')}</div>
-                {/* <div>{appointmentType === 'Haircut' || appointmentType === 'Hair Coloring' ? 'Color/cut' : 'Dansoman'}</div> */}
                 <div>{appointmentType}</div>
-            </div>
-        );
-    };
-
-    // Custom toolbar component
-    const CustomToolbar = () => {
-        return (
-            <div className="mb-4">
-                {/* View mode selector */}
-                <div className="flex justify-end mb-4">
-                    <div className="flex border rounded-md overflow-hidden">
-                        <button
-                            onClick={() => setView(Views.MONTH)}
-                            className={`px-6 py-2 ${view === Views.MONTH ? 'bg-teal-500 text-white' : 'bg-white'}`}
-                        >
-                            Month
-                        </button>
-                        <button
-                            onClick={() => setView(Views.WEEK)}
-                            className={`px-6 py-2 ${view === Views.WEEK ? 'bg-teal-500 text-white' : 'bg-white'}`}
-                        >
-                            Week
-                        </button>
-                        <button
-                            onClick={() => setView(Views.DAY)}
-                            className={`px-6 py-2 ${view === Views.DAY ? 'bg-teal-500 text-white' : 'bg-white'}`}
-                        >
-                            Day
-                        </button>
-                    </div>
-                </div>
             </div>
         );
     };
@@ -334,14 +310,37 @@ export default function StaffWorkSchedule() {
                             className={`flex items-center gap-2 py-1 px-3 rounded-full border ${selectedAppointmentTypes.includes(type) ? 'border-gray-400' : 'border-gray-200 text-gray-400'
                                 }`}
                         >
-                            <span className={`w-2 h-2 rounded-full ${selectedAppointmentTypes.includes(type) ? typeColors[type] : 'bg-gray-300'}`}></span>
+                            <span className={`w-2 h-2 rounded-full ${selectedAppointmentTypes.includes(type) ? typeColors[type] : 'bg-gray-300'
+                                }`}></span>
                             {type}
                             <X size={16} className="text-gray-500" />
                         </button>
                     ))}
                 </div>
 
-                {/* <CustomToolbar /> */}
+                {/* View mode selector */}
+                <div className="flex justify-end mb-4">
+                    <div className="flex border rounded-md overflow-hidden">
+                        <button
+                            onClick={() => setView(Views.MONTH)}
+                            className={`px-6 py-2 ${view === Views.MONTH ? 'bg-teal-500 text-white' : 'bg-white'}`}
+                        >
+                            Month
+                        </button>
+                        <button
+                            onClick={() => setView(Views.WEEK)}
+                            className={`px-6 py-2 ${view === Views.WEEK ? 'bg-teal-500 text-white' : 'bg-white'}`}
+                        >
+                            Week
+                        </button>
+                        <button
+                            onClick={() => setView(Views.DAY)}
+                            className={`px-6 py-2 ${view === Views.DAY ? 'bg-teal-500 text-white' : 'bg-white'}`}
+                        >
+                            Day
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div className="grid grid-cols-[250px_1fr] gap-4">
@@ -381,7 +380,7 @@ export default function StaffWorkSchedule() {
                                     checked={selectAll || selectedStaff.includes(staff.id)}
                                     onChange={() => toggleStaffSelection(staff.id)}
                                 />
-                                 <Avatar className="size-10 hover:border-white hover:border-2">
+                                <Avatar className="size-10 hover:border-white hover:border-2">
                                     <AvatarImage src="/avatar.png" />
                                     <AvatarFallback className="bg-orange-200">JD</AvatarFallback>
                                 </Avatar>
@@ -400,18 +399,15 @@ export default function StaffWorkSchedule() {
                         endAccessor="end"
                         style={{ height: 600 }}
                         view={view}
-                        onView={setView}
+                        onView={(newView: View) => setView(newView)}
                         date={currentDate}
-                        onNavigate={date => setCurrentDate(date)}
+                        onNavigate={(date: Date) => setCurrentDate(date)}
                         components={{
                             event: EventComponent,
-                            // toolbar: () => null, // We're using our custom toolbar
                         }}
-                        // min={new Date(2025, 3, 1, 6, 0)} // Start at 6 AM
-                        // max={new Date(2025, 3, 1, 18, 0)} // End at 6 PM
                         formats={{
                             dayFormat: 'ddd',
-                            timeGutterFormat: hour => format(hour, 'h:mm a'),
+                            timeGutterFormat: (hour: Date) => format(hour, 'h:mm a'),
                         }}
                     />
                 </div>
