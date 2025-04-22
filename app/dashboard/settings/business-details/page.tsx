@@ -172,7 +172,7 @@ export default function BusinessDetails() {
                     <h3 className="mb-4 text-xl font-semibold text-gray-700">Kingz Cut Barbering Salon</h3>
                     <div className="mb-2 flex gap-4">
                         <MapPin className="fill-black stroke-white" />
-                        <span className="text-gray-500 font-light">Dansoman, Ghana</span>
+                        <span className="text-gray-500 font-light">Sowutuom, Ghana</span>
                     </div>
                     <div className="flex gap-4">
                         <Clock className="fill-black stroke-white" />

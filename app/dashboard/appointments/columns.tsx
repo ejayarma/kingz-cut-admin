@@ -210,7 +210,7 @@ export const columns: ColumnDef<Appointment>[] = [
                                 </div>
                                 <div className="flex items-center justify-between px-4 py-2 ">
                                     <span className="text-sm font-semibold">Location</span>
-                                    <span className="text-sm font-medium text-gray-500">Dansoman, Ghana</span>
+                                    <span className="text-sm font-medium text-gray-500">Sowutuom, Ghana</span>
                                 </div>
                                 <div className="flex items-center justify-between px-4 py-2">
                                     <span className="text-sm font-semibold">Customer Name</span>
