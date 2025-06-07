@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button"
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-
-import { handleSignIn, handleSignOut } from '../../lib/google/auth';
-import { useSession } from 'next-auth/react';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { auth } from "@/utils/firebase.browser";
+// import { useToast } from "@/hooks/use-toast"; // If you have toast notifications
 
 import {
   Form,
@@ -21,6 +23,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { DeviconGoogle } from "../icons/google";
+import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email.' }).trim(),
@@ -28,24 +31,151 @@ const formSchema = z.object({
 })
 
 function ProfileForm() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const router = useRouter();
+  // const { toast } = useToast(); // Uncomment if you have toast notifications
+
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
+      password: "",
     },
   })
 
-  // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values)
+  // 2. Define a submit handler for email/password login.
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true);
+
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        values.email,
+        values.password
+      );
+
+      // userCredential.
+      
+
+      console.log('User signed in:', userCredential.user);
+
+      // Show success message (uncomment if you have toast)
+      // toast({
+      //   title: "Success!",
+      //   description: "You have been signed in successfully.",
+      // });
+
+      // Redirect to dashboard
+      router.push('/dashboard');
+
+    } catch (error: any) {
+      console.error('Error signing in:', error);
+
+      // Handle different error types
+      let errorMessage = 'An error occurred during sign in.';
+
+      switch (error.code) {
+        case 'auth/user-not-found':
+          errorMessage = 'No account found with this email address.';
+          break;
+        case 'auth/wrong-password':
+          errorMessage = 'Incorrect password.';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'Invalid email address.';
+          break;
+        case 'auth/user-disabled':
+          errorMessage = 'This account has been disabled.';
+          break;
+        case 'auth/too-many-requests':
+          errorMessage = 'Too many failed attempts. Please try again later.';
+          break;
+        case 'auth/invalid-credential':
+          errorMessage = 'Invalid email or password.';
+          break;
+        default:
+          errorMessage = error.message || 'An error occurred during sign in.';
+      }
+
+      // Show error message (uncomment if you have toast)
+      // toast({
+      //   title: "Error",
+      //   description: errorMessage,
+      //   variant: "destructive",
+      // });
+
+      // Set form error
+      form.setError('root', {
+        type: 'manual',
+        message: errorMessage,
+      });
+
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  // Handle Google Sign-In
+  async function handleGoogleSignIn() {
+    setIsGoogleLoading(true);
+
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+
+      console.log('User signed in with Google:', result.user);
+
+      // Show success message (uncomment if you have toast)
+      // toast({
+      //   title: "Success!",
+      //   description: "You have been signed in with Google successfully.",
+      // });
+
+      // Redirect to dashboard
+      router.push('/dashboard');
+
+    } catch (error: any) {
+      console.error('Error signing in with Google:', error);
+
+      let errorMessage = 'An error occurred during Google sign in.';
+
+      switch (error.code) {
+        case 'auth/popup-closed-by-user':
+          errorMessage = 'Sign in was cancelled.';
+          break;
+        case 'auth/popup-blocked':
+          errorMessage = 'Popup was blocked. Please allow popups and try again.';
+          break;
+        case 'auth/account-exists-with-different-credential':
+          errorMessage = 'An account already exists with this email using a different sign-in method.';
+          break;
+        default:
+          errorMessage = error.message || 'An error occurred during Google sign in.';
+      }
+
+      // Show error message (uncomment if you have toast)
+      // toast({
+      //   title: "Error",
+      //   description: errorMessage,
+      //   variant: "destructive",
+      // });
+
+    } finally {
+      setIsGoogleLoading(false);
+    }
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        {form.formState.errors.root && (
+          <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+            {form.formState.errors.root.message}
+          </div>
+        )}
+
         <FormField
           control={form.control}
           name="email"
@@ -53,11 +183,13 @@ function ProfileForm() {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="Enter your email" {...field} />
+                <Input
+                  placeholder="Enter your email"
+                  type="email"
+                  disabled={isLoading || isGoogleLoading}
+                  {...field}
+                />
               </FormControl>
-              {/* <FormDescription>
-                This is your public display name.
-              </FormDescription> */}
               <FormMessage />
             </FormItem>
           )}
@@ -70,33 +202,72 @@ function ProfileForm() {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input placeholder="Enter your password" {...field} />
+                <Input
+                  placeholder="Enter your password"
+                  type="password"
+                  disabled={isLoading || isGoogleLoading}
+                  {...field}
+                />
               </FormControl>
               <FormDescription>
-                {/* This is your public display name. */}
-                <a href="#" className="text-blue-400 font-medium">Forgot password?</a>
+                <Link href="/forgot-password" className="text-blue-400 font-medium hover:underline">
+                  Forgot password?
+                </Link>
               </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button size={'lg'} className="w-full rounded-none bg-[#FF9600] hover:bg-[#158F83]" type="submit">Login</Button>
-        <Button
-          onClick={handleSignIn}
 
-          size={'lg'} variant={'outline'} className="w-full" type="button">
-          <DeviconGoogle />
-          Continue with Google
+        <Button
+          size={'lg'}
+          className="w-full rounded-none bg-[#FF9600] hover:bg-[#158F83]"
+          type="submit"
+          disabled={isLoading || isGoogleLoading}
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Signing In...
+            </>
+          ) : (
+            'Login'
+          )}
         </Button>
 
-        <p className="text-gray-400 text-center">Don't have an account? <Link href="/register" className="text-blue-400">Create an account</Link></p>
+        <Button
+          onClick={handleGoogleSignIn}
+          size={'lg'}
+          variant={'outline'}
+          className="w-full"
+          type="button"
+          disabled={isLoading || isGoogleLoading}
+        >
+          {isGoogleLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Signing In...
+            </>
+          ) : (
+            <>
+              <DeviconGoogle />
+              Continue with Google
+            </>
+          )}
+        </Button>
+
+        <p className="text-gray-400 text-center">
+          Don't have an account?
+          <Link href="/register" className="text-blue-400 hover:underline ml-1">
+            Create an account
+          </Link>
+        </p>
       </form>
     </Form>
   )
 }
 
 export default function Login() {
-
   return (
     <div className="min-h-screen flex">
       <div className="w-1/2 inline-flex items-center justify-center">
@@ -106,9 +277,15 @@ export default function Login() {
         </div>
       </div>
       <div className="w-1/2 bg-[#158F83] inline-flex items-center justify-center flex-col gap-16">
-        <h3 className="text-white text-center font-bold text-3xl">Welcome to Kingz Cut <br /> Barbering Salon</h3>
-        <Image src="/login-salon.png" alt="Salon or barbering shop" width={400} height={16} />
-
+        <h3 className="text-white text-center font-bold text-3xl">
+          Welcome to Kingz Cut <br /> Barbering Salon
+        </h3>
+        <Image
+          src="/login-salon.png"
+          alt="Salon or barbering shop"
+          width={400}
+          height={16}
+        />
       </div>
     </div>
   );

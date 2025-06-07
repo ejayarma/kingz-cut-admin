@@ -23,7 +23,6 @@ const postsCollection = collection(db, "posts");
 const commentsCollection = collection(db, "comments");
 const usersCollection = collection(db, "users");
 
-
 export {
   app,
   db,
