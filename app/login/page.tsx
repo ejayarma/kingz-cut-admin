@@ -1,10 +1,15 @@
 'use client';
+
 import Image from "next/image";
 import Link from 'next/link'
 import { Button } from "@/components/ui/button"
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
+
+import { handleSignIn, handleSignOut } from '../../lib/google/auth';
+import { useSession } from 'next-auth/react';
+
 import {
   Form,
   FormControl,
@@ -76,7 +81,10 @@ function ProfileForm() {
           )}
         />
         <Button size={'lg'} className="w-full rounded-none bg-[#FF9600] hover:bg-[#158F83]" type="submit">Login</Button>
-        <Button size={'lg'} variant={'outline'} className="w-full" type="button">
+        <Button
+          onClick={handleSignIn}
+
+          size={'lg'} variant={'outline'} className="w-full" type="button">
           <DeviconGoogle />
           Continue with Google
         </Button>
