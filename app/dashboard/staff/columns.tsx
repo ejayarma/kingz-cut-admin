@@ -16,6 +16,7 @@ import { DataTableColumnHeader } from "@/components/data-table-column-header"
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTrigger } from "@/components/ui/dialog"
 import { DialogTitle } from "@radix-ui/react-dialog"
 import { StaffReviewsModal } from "./staff-reviews-modal"
+import { StaffMember } from "../settings/staff/types"
 
 export type Payment = {
     id: string
@@ -24,15 +25,6 @@ export type Payment = {
     email: string
 }
 
-export type Staff = {
-    id: number;
-    name: string;
-    email: string;
-    phoneNumber: string;
-    rating: number;
-    sales: number;
-    availability: "Available" | "Unavailable";
-};
 
 
 export type Service = {
@@ -41,7 +33,7 @@ export type Service = {
     price: number;
 };
 
-export const columns: ColumnDef<Staff>[] = [
+export const columns: ColumnDef<StaffMember>[] = [
     {
         accessorKey: "id",
         header: ({ column }) => (
@@ -61,7 +53,7 @@ export const columns: ColumnDef<Staff>[] = [
         ),
     },
     {
-        accessorKey: "phoneNumber",
+        accessorKey: "phone",
         header: ({ column }) => (
             <DataTableColumnHeader column={column} title="Phone" />
         ),
@@ -71,6 +63,13 @@ export const columns: ColumnDef<Staff>[] = [
         header: ({ column }) => (
             <DataTableColumnHeader column={column} title="Rating" />
         ),
+        cell: ({ row }) => {
+            // const sales = parseFloat(row.getValue("sales"))
+            const sales = 0;
+            const formatted = Number(0).toFixed(2);
+
+            return <div className="font-medium">{formatted}</div>
+        },
     },
     {
         accessorKey: "sales",
@@ -78,7 +77,8 @@ export const columns: ColumnDef<Staff>[] = [
             <DataTableColumnHeader column={column} title="Sales" />
         ),
         cell: ({ row }) => {
-            const sales = parseFloat(row.getValue("sales"))
+            // const sales = parseFloat(row.getValue("sales"))
+            const sales = 0;
             const formatted = new Intl.NumberFormat("en-US", {
                 style: "currency",
                 currency: "GHS",
@@ -94,7 +94,8 @@ export const columns: ColumnDef<Staff>[] = [
             <DataTableColumnHeader column={column} title="Availability" />
         ),
         cell: ({ row }) => {
-            const availability = row.getValue("availability") as string;
+
+            const availability = row.original.active ? 'Available' : 'Unavailable';
 
             const availColors: Record<string, string> = {
                 Available: "bg-green-100 text-green-700",
@@ -129,9 +130,9 @@ export const columns: ColumnDef<Staff>[] = [
                                     View Reviews
                                 </DropdownMenuItem>
                             </DialogTrigger>
-                            <DropdownMenuItem>
+                            {/* <DropdownMenuItem>
                                 Mark as unavailable
-                            </DropdownMenuItem>
+                            </DropdownMenuItem> */}
                         </DropdownMenuContent>
                     </DropdownMenu>
 

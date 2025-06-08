@@ -3,7 +3,7 @@ import { AvatarImage } from "@radix-ui/react-avatar"
 import Image from "next/image"
 
 type StaffReviewsModalProps = {
-  staffId: number
+  staffId: string
 }
 
 export function StaffReviewsModal({ staffId }: StaffReviewsModalProps) {

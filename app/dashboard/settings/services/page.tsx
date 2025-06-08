@@ -31,15 +31,7 @@ import {
 } from 'firebase/firestore';
 
 // Define TypeScript interfaces
-interface Service {
-    id: string;
-    name: string;
-    timeframe: number;
-    price: number;
-    imageUrl?: string;
-    createdAt?: string; // ISO string format
-    updatedAt?: string; // ISO string format
-}
+
 
 type IconName = "scissors" | "diamond" | "palette" | "spray-can";
 type ColorName = "blue" | "red" | "orange" | "purple" | "green" | "pink";
