@@ -6,19 +6,7 @@ import { useEffect, useState } from "react";
 import { doc, getDoc, setDoc, collection, getDocs, query, limit } from "firebase/firestore";
 import { db } from "@/utils/firebase.browser";
 import BusinessDetailsModal from "./business-modal";
-
-interface BusinessData {
-    name: string;
-    location: string;
-    website: string;
-    whatsapp: string;
-    facebook: string;
-    x: string;
-    instagram: string;
-    youtube: string;
-    phone: string;
-    hours?: string;
-}
+import { BusinessData } from "./types";
 
 const defaultBusinessData: BusinessData = {
     name: "Kingz Cut Barbering Salon",

@@ -6,13 +6,17 @@ import { StaffMember } from "../settings/staff/types";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
 
-export default function Page({
+export default async function Page({
     params,
     searchParams,
 }: {
-    params: { slug: string };
-    searchParams: { [key: string]: string | string[] | undefined };
+    params: Promise<{ slug: string }>;
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
+    // Await the params and searchParams
+    const resolvedParams = await params;
+    const resolvedSearchParams = await searchParams;
+
     const [data, setData] = useState<StaffMember[]>([]);
     const staffService = new StaffService();
 

@@ -16,6 +16,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import React, { useState } from "react";
+import { BusinessData } from "./types";
 
 const formSchema = z.object({
     name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -30,18 +31,7 @@ const formSchema = z.object({
     hours: z.string().optional(),
 });
 
-interface BusinessData {
-    name: string;
-    location: string;
-    website: string;
-    whatsapp: string;
-    facebook: string;
-    x: string;
-    instagram: string;
-    // youtube: string;
-    phone: string;
-    hours?: string;
-}
+
 
 interface BusinessDetailsModalProps {
     isOpen: boolean;
