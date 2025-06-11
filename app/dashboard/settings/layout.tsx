@@ -41,10 +41,10 @@ export default function SettingsLayout({
             <Link href="/dashboard/settings/services" className="w-full" passHref>
               <TabsTrigger className="w-full" value="Services">Services</TabsTrigger>
             </Link>
-            {/* <Link href="/dashboard/settings/policies-and-rewards" className="w-full" passHref>
+            <Link href="/dashboard/settings/policies-and-rewards" className="w-full" passHref>
               <TabsTrigger className="w-full" value="policiesAndRewards">Policies & Rewards</TabsTrigger>
             </Link>
-            <Link href="/dashboard/settings/payment" className="w-full" passHref>
+            {/* <Link href="/dashboard/settings/payment" className="w-full" passHref>
               <TabsTrigger className="w-full" value="payment">Payment</TabsTrigger>
             </Link> */}
           </TabsList>

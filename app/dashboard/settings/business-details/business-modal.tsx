@@ -38,7 +38,7 @@ interface BusinessData {
     facebook: string;
     x: string;
     instagram: string;
-    youtube: string;
+    // youtube: string;
     phone: string;
     hours?: string;
 }
@@ -207,7 +207,7 @@ export default function BusinessDetailsModal({
                                     )}
                                 />
 
-                                <FormField
+                                {/* <FormField
                                     control={form.control}
                                     name="youtube"
                                     render={({ field }) => (
@@ -219,7 +219,7 @@ export default function BusinessDetailsModal({
                                             <FormMessage className="text-left" />
                                         </FormItem>
                                     )}
-                                />
+                                /> */}
 
                                 <FormField
                                     control={form.control}
