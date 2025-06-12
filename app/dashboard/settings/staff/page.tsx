@@ -9,6 +9,7 @@ import { StaffCard } from "./staff-card";
 import { StaffModal } from "./staff-modal";
 import { StaffMember } from "./types";
 import { StaffService } from "./firebase-services";
+import { Service } from "../services/types";
 
 export default function StaffPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -93,7 +94,7 @@ export default function StaffPage() {
             if (staffData.id) {
                 // Update existing staff member
                 console.log('UPDATING STAFF');
-                
+
                 await staffService.updateStaff(staffData.id, staffData);
                 setStaffMembers(prevStaff =>
                     prevStaff.map(staff =>
