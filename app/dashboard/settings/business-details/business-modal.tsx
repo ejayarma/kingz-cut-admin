@@ -12,6 +12,7 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -20,10 +21,12 @@ import { BusinessData } from "./types";
 
 const formSchema = z.object({
     name: z.string().min(2, { message: "Name must be at least 2 characters." }),
+    description: z.string().min(100, { message: "Description must be at least 100 characters." }),
     location: z.string().min(2, { message: "Location is required." }),
     website: z.string().url({ message: "Please enter a valid URL" }).or(z.literal("")),
     whatsapp: z.string().url({ message: "Please enter a valid WhatsApp URL" }).or(z.literal("")),
     facebook: z.string().url({ message: "Please enter a valid Facebook URL" }).or(z.literal("")),
+    tiktok: z.string().url({ message: "Please enter a valid Facebook URL" }).or(z.literal("")),
     x: z.string().url({ message: "Please enter a valid X URL" }).or(z.literal("")),
     instagram: z.string().url({ message: "Please enter a valid Instagram URL" }).or(z.literal("")),
     youtube: z.string().url({ message: "Please enter a valid YouTube URL" }).or(z.literal("")),
@@ -85,6 +88,7 @@ export default function BusinessDetailsModal({
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         <ScrollArea className="h-96 w-full">
                             <div className="p-4 space-y-6">
+
                                 <FormField
                                     control={form.control}
                                     name="name"
@@ -93,6 +97,20 @@ export default function BusinessDetailsModal({
                                             <FormLabel>Business Name</FormLabel>
                                             <FormControl>
                                                 <Input placeholder="Enter business name here" {...field} />
+                                            </FormControl>
+                                            <FormMessage className="text-left" />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <FormField
+                                    control={form.control}
+                                    name="description"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Business Description</FormLabel>
+                                            <FormControl>
+                                                <Textarea placeholder="Describe business here" {...field} />
                                             </FormControl>
                                             <FormMessage className="text-left" />
                                         </FormItem>
@@ -163,6 +181,20 @@ export default function BusinessDetailsModal({
                                             <FormLabel>WhatsApp</FormLabel>
                                             <FormControl>
                                                 <Input placeholder="https://wa.me/your-number" {...field} />
+                                            </FormControl>
+                                            <FormMessage className="text-left" />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <FormField
+                                    control={form.control}
+                                    name="tiktok"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>TikTok</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="https://tiktok.com/yourpage" {...field} />
                                             </FormControl>
                                             <FormMessage className="text-left" />
                                         </FormItem>
