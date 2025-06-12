@@ -16,6 +16,7 @@ import {
 } from "firebase/auth";
 import { StaffMember } from "./types";
 import { auth, db } from "@/utils/firebase.browser";
+import { Service } from "../services/types";
 
 export class StaffService {
   private staffCollection = collection(db, "staff");
@@ -115,53 +116,6 @@ export class StaffService {
     }
   }
 
-  // Update staff member and corresponding Auth user
-  // async updateStaffOld(
-  //   id: string,
-  //   staffData: Partial<StaffMember>
-  // ): Promise<void> {
-  //   const now = new Date().toISOString();
-
-  //   try {
-  //     // 1️⃣ Fetch staff document
-  //     const staffDoc = await getDoc(doc(this.staffCollection, id));
-  //     if (!staffDoc.exists()) {
-  //       throw new Error("Staff member not found");
-  //     }
-
-  //     const currentStaff = staffDoc.data() as StaffMember;
-
-  //     // 2️⃣ Update Firestore staff document
-  //     const updateData = {
-  //       ...staffData,
-  //       updatedAt: now,
-  //     };
-
-  //     await updateDoc(doc(this.staffCollection, id), updateData);
-
-  //     // 3️⃣ Update Firebase Auth user via Admin SDK
-  //     if (currentStaff.userId) {
-  //       const updateAuthData:  UpdateRequest = {};
-
-  //       if (staffData.name) {
-  //         updateAuthData.displayName = staffData.name;
-  //       }
-  //       if (staffData.email) {
-  //         updateAuthData.email = staffData.email;
-  //       }
-  //       if (staffData.image) {
-  //         updateAuthData.photoURL = staffData.image;
-  //       }
-
-  //       if (Object.keys(updateAuthData).length > 0) {
-  //         await firebaseAdmin.auth().updateUser(currentStaff.userId, updateAuthData);
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error("Error updating staff:", error);
-  //     throw error;
-  //   }
-  // }
 
   // Delete staff member and associated user account
   async deleteStaff(id: string): Promise<void> {

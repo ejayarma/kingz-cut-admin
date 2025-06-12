@@ -10,7 +10,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { auth } from "@/utils/firebase.browser";
-// import { useToast } from "@/hooks/use-toast"; // If you have toast notifications
+import { toast } from "sonner";
 
 import {
   Form,
@@ -34,7 +34,6 @@ function ProfileForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const router = useRouter();
-  // const { toast } = useToast(); // Uncomment if you have toast notifications
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -57,15 +56,12 @@ function ProfileForm() {
       );
 
       // userCredential.
-      
+
 
       console.log('User signed in:', userCredential.user);
 
-      // Show success message (uncomment if you have toast)
-      // toast({
-      //   title: "Success!",
-      //   description: "You have been signed in successfully.",
-      // });
+
+      toast.success('You have been signed in successfully.');
 
       // Redirect to dashboard
       router.push('/dashboard');
@@ -99,12 +95,8 @@ function ProfileForm() {
           errorMessage = error.message || 'An error occurred during sign in.';
       }
 
-      // Show error message (uncomment if you have toast)
-      // toast({
-      //   title: "Error",
-      //   description: errorMessage,
-      //   variant: "destructive",
-      // });
+
+      toast.error(errorMessage);
 
       // Set form error
       form.setError('root', {
@@ -127,11 +119,7 @@ function ProfileForm() {
 
       console.log('User signed in with Google:', result.user);
 
-      // Show success message (uncomment if you have toast)
-      // toast({
-      //   title: "Success!",
-      //   description: "You have been signed in with Google successfully.",
-      // });
+      toast.success('You have been signed in with Google successfully.');
 
       // Redirect to dashboard
       router.push('/dashboard');
@@ -155,12 +143,7 @@ function ProfileForm() {
           errorMessage = error.message || 'An error occurred during Google sign in.';
       }
 
-      // Show error message (uncomment if you have toast)
-      // toast({
-      //   title: "Error",
-      //   description: errorMessage,
-      //   variant: "destructive",
-      // });
+      toast.error(errorMessage);
 
     } finally {
       setIsGoogleLoading(false);
