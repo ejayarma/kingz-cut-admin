@@ -10,7 +10,9 @@ import { Popover } from "@/components/ui/popover"
 import { PopoverContent, PopoverTrigger } from "@radix-ui/react-popover"
 import { useEffect, useState } from 'react'
 import { onAuthStateChanged, signOut, User } from 'firebase/auth'
-import { auth } from "@/utils/firebase.browser";
+import { auth, db } from "@/utils/firebase.browser"
+import { collection, query, where, getDocs } from 'firebase/firestore'
+import { StaffMember } from "./settings/staff/types"
 
 
 
@@ -21,13 +23,52 @@ export default function DashboardLayout({
 }) {
     const router = useRouter()
     const [user, setUser] = useState<User | null>(null)
+    const [staffMember, setStaffMember] = useState<StaffMember | null>(null)
     const [loading, setLoading] = useState(true)
+    const [authError, setAuthError] = useState<string | null>(null)
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             if (currentUser) {
                 setUser(currentUser)
-                setLoading(false)
+
+                try {
+                    // Check if user has a staff record with admin role
+                    const staffQuery = query(
+                        collection(db, 'staff'),
+                        where('userId', '==', currentUser.uid),
+                        where('active', '==', true)
+                    )
+
+                    const staffSnapshot = await getDocs(staffQuery)
+
+                    if (!staffSnapshot.empty) {
+                        const staffData = staffSnapshot.docs[0].data() as Omit<StaffMember, 'id'>
+                        const staffMemberData: StaffMember = {
+                            id: staffSnapshot.docs[0].id,
+                            ...staffData
+                        }
+
+                        setStaffMember(staffMemberData)
+
+                        // Check if user has admin role
+                        if (staffMemberData.role !== 'admin') {
+                            setAuthError('Access denied. Admin privileges required.')
+                            setLoading(false)
+                            return
+                        }
+
+                        setLoading(false)
+                    } else {
+                        // No staff record found
+                        setAuthError('Access denied. No staff record found.')
+                        setLoading(false)
+                    }
+                } catch (error) {
+                    console.error('Error checking staff record:', error)
+                    setAuthError('Error verifying access permissions.')
+                    setLoading(false)
+                }
             } else {
                 // User is not authenticated, redirect to login
                 router.push('/login')
@@ -55,13 +96,39 @@ export default function DashboardLayout({
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin" />
+                <div className="text-center">
+                    <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+                    <p className="text-gray-600">Checking access permissions...</p>
+                </div>
             </div>
         )
     }
 
-    // If no user, the useEffect will redirect, but we return null as fallback
-    if (!user) {
+    // Show access denied error
+    if (authError) {
+        return (
+            <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+                <div className="text-center p-8 bg-white rounded-lg shadow-lg max-w-md">
+                    <div className="text-red-500 mb-4">
+                        <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                        </svg>
+                    </div>
+                    <h2 className="text-xl font-semibold text-gray-800 mb-2">Access Denied</h2>
+                    <p className="text-gray-600 mb-6">{authError}</p>
+                    <Button
+                        onClick={handleLogout}
+                        className="bg-red-500 hover:bg-red-600"
+                    >
+                        Sign Out
+                    </Button>
+                </div>
+            </div>
+        )
+    }
+
+    // If no user or staff member, the useEffect will handle redirects
+    if (!user || !staffMember) {
         return null
     }
 
@@ -75,6 +142,11 @@ export default function DashboardLayout({
             .toUpperCase()
             .slice(0, 2)
     }
+
+    // Use staff member data for display, fallback to user data
+    const displayName = staffMember.name || user.displayName || 'Admin'
+    const displayEmail = staffMember.email || user.email || ''
+    const displayImage = staffMember.image || user.photoURL
 
     return (
         <section className="min-h-screen bg-gray-100">
@@ -129,9 +201,9 @@ export default function DashboardLayout({
                         <Popover>
                             <PopoverTrigger>
                                 <Avatar className="size-12 hover:border-white hover:border-2">
-                                    <AvatarImage src={user.photoURL || undefined} />
+                                    <AvatarImage src={displayImage || undefined} />
                                     <AvatarFallback className="bg-orange-200">
-                                        {getInitials(user.displayName)}
+                                        {getInitials(displayName)}
                                     </AvatarFallback>
                                 </Avatar>
                             </PopoverTrigger>
@@ -141,10 +213,13 @@ export default function DashboardLayout({
                                 align="end"
                             >
                                 <p className="font-bold">
-                                    {user.displayName || 'User'}
+                                    {displayName}
                                 </p>
-                                <p className="font-light">
-                                    {user.email}
+                                <p className="font-light text-sm text-gray-600">
+                                    {displayEmail}
+                                </p>
+                                <p className="text-xs text-green-600 font-medium mt-1">
+                                    {staffMember.role.toUpperCase()}
                                 </p>
                                 <Button
                                     variant="outline"
