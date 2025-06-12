@@ -10,8 +10,11 @@ import { BusinessData } from "./types";
 
 const defaultBusinessData: BusinessData = {
     name: "Kingz Cut Barbering Salon",
+    description: "",
     location: "Sowutuom, Ghana",
     website: "",
+    tiktok: "",
+    email: "",
     whatsapp: "",
     facebook: "",
     x: "",

@@ -1,6 +1,7 @@
 export interface BusinessData {
   name: string;
   description: string;
+  email: string;
   location: string;
   website: string;
   whatsapp: string;

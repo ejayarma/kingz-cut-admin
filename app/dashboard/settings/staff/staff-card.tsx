@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Phone, Mail, MoreVertical, User, ExternalLink } from "lucide-react";
 import { StaffMember } from "./types";
+import { Service } from "../services/types";
 
 interface StaffCardProps {
     services: Service[];
@@ -19,15 +20,14 @@ interface StaffCardProps {
 }
 
 export function StaffCard({ services, staff, onEdit, onDelete }: StaffCardProps) {
-   
+
     return (
-        <div className={`bg-white rounded-lg shadow-sm p-6 flex flex-col items-center relative border-l-4 ${
-            staff.active 
-                ? staff.role === 'admin' 
-                    ? 'border-l-purple-500' 
-                    : 'border-l-teal-500'
-                : 'border-l-gray-300'
-        }`}>
+        <div className={`bg-white rounded-lg shadow-sm p-6 flex flex-col items-center relative border-l-4 ${staff.active
+            ? staff.role === 'admin'
+                ? 'border-l-purple-500'
+                : 'border-l-teal-500'
+            : 'border-l-gray-300'
+            }`}>
             {/* Options menu */}
             <div className="absolute top-2 right-2">
                 <DropdownMenu>
@@ -40,7 +40,7 @@ export function StaffCard({ services, staff, onEdit, onDelete }: StaffCardProps)
                         <DropdownMenuItem onClick={() => onEdit(staff)}>
                             Edit
                         </DropdownMenuItem>
-                       
+
                         <DropdownMenuItem
                             className="text-red-600"
                             onClick={() => onDelete(staff.id)}
@@ -53,23 +53,21 @@ export function StaffCard({ services, staff, onEdit, onDelete }: StaffCardProps)
 
             {/* Status badges */}
             <div className="absolute top-2 left-2 flex flex-col gap-1">
-                <Badge 
+                <Badge
                     variant={staff.active ? "default" : "secondary"}
-                    className={`text-xs ${
-                        staff.active 
-                            ? "bg-green-100 text-green-800 hover:bg-green-100" 
-                            : "bg-gray-100 text-gray-600 hover:bg-gray-100"
-                    }`}
+                    className={`text-xs ${staff.active
+                        ? "bg-green-100 text-green-800 hover:bg-green-100"
+                        : "bg-gray-100 text-gray-600 hover:bg-gray-100"
+                        }`}
                 >
                     {staff.active ? "Active" : "Inactive"}
                 </Badge>
-                <Badge 
+                <Badge
                     variant="outline"
-                    className={`text-xs ${
-                        staff.role === 'admin' 
-                            ? "border-purple-300 text-purple-700" 
-                            : "border-teal-300 text-teal-700"
-                    }`}
+                    className={`text-xs ${staff.role === 'admin'
+                        ? "border-purple-300 text-purple-700"
+                        : "border-teal-300 text-teal-700"
+                        }`}
                 >
                     {staff.role === 'admin' ? 'Admin' : 'Staff'}
                 </Badge>
@@ -94,9 +92,8 @@ export function StaffCard({ services, staff, onEdit, onDelete }: StaffCardProps)
             {/* Contact info */}
             <div className="w-full space-y-3">
                 <div className="flex items-center gap-3">
-                    <div className={`rounded-full p-2 ${
-                        staff.role === 'admin' ? 'bg-purple-50' : 'bg-teal-50'
-                    }`}>
+                    <div className={`rounded-full p-2 ${staff.role === 'admin' ? 'bg-purple-50' : 'bg-teal-50'
+                        }`}>
                         <Phone size={18} className={
                             staff.role === 'admin' ? 'text-purple-600' : 'text-teal-600'
                         } />
@@ -104,9 +101,8 @@ export function StaffCard({ services, staff, onEdit, onDelete }: StaffCardProps)
                     <span className="text-gray-600 text-sm">{staff.phone}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                    <div className={`rounded-full p-2 ${
-                        staff.role === 'admin' ? 'bg-purple-50' : 'bg-teal-50'
-                    }`}>
+                    <div className={`rounded-full p-2 ${staff.role === 'admin' ? 'bg-purple-50' : 'bg-teal-50'
+                        }`}>
                         <Mail size={18} className={
                             staff.role === 'admin' ? 'text-purple-600' : 'text-teal-600'
                         } />
@@ -121,16 +117,16 @@ export function StaffCard({ services, staff, onEdit, onDelete }: StaffCardProps)
                 <div className="flex flex-wrap gap-1">
                     {staff.services.length > 0 ? (
                         services
-                        .filter(service => staff.services.includes(service.id))
-                        .map((service, index) => (
-                            <Badge 
-                                key={index}
-                                variant="secondary"
-                                className="text-xs bg-gray-100 text-gray-700"
-                            >
-                                {service.name}
-                            </Badge>
-                        ))
+                            .filter(service => staff.services.includes(service.id))
+                            .map((service, index) => (
+                                <Badge
+                                    key={index}
+                                    variant="secondary"
+                                    className="text-xs bg-gray-100 text-gray-700"
+                                >
+                                    {service.name}
+                                </Badge>
+                            ))
                     ) : (
                         <span className="text-gray-400 text-xs">No services assigned</span>
                     )}
