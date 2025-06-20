@@ -35,11 +35,13 @@ export type Service = {
 
 export const columns: ColumnDef<StaffMember>[] = [
     {
-        accessorKey: "id",
+        id: "row-number",
         header: ({ column }) => (
             <DataTableColumnHeader column={column} title="NO" />
         ),
+        cell: ({ row }) => <div className="font-medium">{row.index + 1}</div>,
     },
+
     {
         accessorKey: "name",
         header: ({ column }) => (

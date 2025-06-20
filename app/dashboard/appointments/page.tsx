@@ -1,119 +1,61 @@
-import { Appointment, Payment, columns } from "./columns"
-import { DataTable } from "./data-table"
+"use client";
 
-import { v4 as uuidv4 } from "uuid";
+import { useEffect, useState } from "react";
+import { useParams, useSearchParams } from "next/navigation";
+import { columns } from "./columns";
+import { DataTable } from "./data-table";
+import { AppointmentService } from "./appointment-service";
+import { AppointmentTableRow } from "./types";
 
-async function getAppointmentData(): Promise<Appointment[]> {
-    const statuses = ["cancelled", "absent", "done", "booked"];
-    const servicesList = [
-        { name: "Haircut", price: 50 },
-        { name: "Massage", price: 100 },
-        { name: "Facial", price: 80 },
-        { name: "Manicure", price: 60 },
-    ];
+export default function AppointmentsPage() {
+    const params = useParams();
+    const searchParams = useSearchParams();
 
-    const appointments: Appointment[] = [];
+    const [appointments, setAppointments] = useState<AppointmentTableRow[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    for (let i = 1; i <= 50; i++) {
-        const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
-        const startTime = new Date(2025, 2, i % 28, 9 + (i % 5), 0).toISOString(); // Random time
-        const endTime = new Date(new Date(startTime).getTime() + 60 * 60 * 1000).toISOString(); // +1 hour
-        const date = startTime.split("T")[0]; // Extract YYYY-MM-DD
+    useEffect(() => {
+        async function fetchData() {
+            try {
+                const appointmentsData = await AppointmentService.getAppointmentsWithDetails();
+                setAppointments(appointmentsData);
 
-        appointments.push({
-            no: i,
-            customerName: `Customer ${i}`,
-            startTime,
-            endTime,
-            date, // Extracted from startTime
-            services: [servicesList[i % servicesList.length]], // Assigning a service
-            amount: servicesList[i % servicesList.length].price,
-            status: randomStatus as "cancelled" | "absent" | "done" | "booked",
-        });
-    }
+                // Optional: Fetch filter data
+                // const [customers, services, staff] = await Promise.all([
+                //     AppointmentService.getAllCustomers(),
+                //     AppointmentService.getAllServices(),
+                //     AppointmentService.getAllStaff(),
+                // ]);
 
-    return appointments;
-}
+                setLoading(false);
+            } catch (err) {
+                console.error("Error loading appointments:", err);
+                setError("There was an error loading the appointments. Please try again later.");
+                setLoading(false);
+            }
+        }
 
-async function getData(): Promise<Payment[]> {
-    return [
-        {
-            id: uuidv4(),
-            amount: 100,
-            status: "pending",
-            email: "a@example.com",
-        },
-        {
-            id: uuidv4(),
-            amount: 200,
-            status: "success",
-            email: "b@example.com",
-        },
-        {
-            id: uuidv4(),
-            amount: 150,
-            status: "failed",
-            email: "c@example.com",
-        },
-        {
-            id: uuidv4(),
-            amount: 300,
-            status: "pending",
-            email: "d@example.com",
-        },
-        {
-            id: uuidv4(),
-            amount: 250,
-            status: "success",
-            email: "e@example.com",
-        },
-        {
-            id: uuidv4(),
-            amount: 400,
-            status: "failed",
-            email: "f@example.com",
-        },
-        {
-            id: uuidv4(),
-            amount: 500,
-            status: "pending",
-            email: "g@example.com",
-        },
-        {
-            id: uuidv4(),
-            amount: 600,
-            status: "success",
-            email: "h@example.com",
-        },
-        {
-            id: uuidv4(),
-            amount: 700,
-            status: "pending",
-            email: "i@example.com",
-        },
-        {
-            id: uuidv4(),
-            amount: 800,
-            status: "failed",
-            email: "j@example.com",
-        },
-    ];
-}
-
-
-export default async function Page({
-    params,
-    searchParams,
-}: {
-    params: Promise<{ slug: string }>
-    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-}) {
-
-    const data = await getAppointmentData()
+        fetchData();
+    }, []);
 
     return (
         <div className="container mx-auto py-10">
-            <DataTable columns={columns} data={data} />
+            <div className="mb-6">
+                <h1 className="text-3xl font-bold">Appointments</h1>
+                <p className="text-muted-foreground">Manage and view all appointments</p>
+            </div>
+
+            {loading ? (
+                <p>Loading...</p>
+            ) : error ? (
+                <div className="text-center">
+                    <h1 className="text-2xl font-bold text-red-600">Error Loading Appointments</h1>
+                    <p className="text-muted-foreground mt-2">{error}</p>
+                </div>
+            ) : (
+                <DataTable columns={columns} data={appointments} />
+            )}
         </div>
-    )
+    );
 }

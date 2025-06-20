@@ -21,145 +21,186 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
 import { formatDateStr } from "@/lib/utils"
+import { AppointmentTableRow } from "./types"
+import { Badge } from "@/components/ui/badge"
+// import { DialogTrigger } from "@/components/ui/dialog"
 
-export type Payment = {
-    id: string
-    amount: number
-    status: "pending" | "processing" | "success" | "failed"
-    email: string
+const getStatusColor = (status: string) => {
+    switch (status) {
+        case 'pending':
+            return 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
+        case 'confirmed':
+            return 'bg-blue-100 text-blue-800 hover:bg-blue-200'
+        case 'completed':
+            return 'bg-green-100 text-green-800 hover:bg-green-200'
+        case 'cancelled':
+            return 'bg-red-100 text-red-800 hover:bg-red-200'
+        case 'noShow':
+            return 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+        default:
+            return 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+    }
 }
 
-export type Appointment = {
-    no: number;
-    customerName: string;
-    date: string;
-    startTime: string;
-    endTime: string;
-    amount: number;
-    services: { name: string; price: number }[];
-    status: "cancelled" | "absent" | "done" | "booked";
-};
-export type Service = {
-    id: string;
-    name: string;
-    price: number;
-};
-export type ServicesList = {
-    [key: string]: Service;
-};
-export const servicesList: ServicesList = {
-    "1": { id: "1", name: "Service 1", price: 100 },
-    "2": { id: "2", name: "Service 2", price: 200 },
-    "3": { id: "3", name: "Service 3", price: 300 },
-    "4": { id: "4", name: "Service 4", price: 400 },
-    "5": { id: "5", name: "Service 5", price: 500 },
-    "6": { id: "6", name: "Service 6", price: 600 },
-    "7": { id: "7", name: "Service 7", price: 700 },
-    "8": { id: "8", name: "Service 8", price: 800 },
-    "9": { id: "9", name: "Service 9", price: 900 },
-    "10": { id: "10", name: "Service 10", price: 1000 },
-    "11": { id: "11", name: "Service 11", price: 1100 },
-    "12": { id: "12", name: "Service 12", price: 1200 },
-    "13": { id: "13", name: "Service 13", price: 1300 },
-    "14": { id: "14", name: "Service 14", price: 1400 },
-    "15": { id: "15", name: "Service 15", price: 1500 },
-    "16": { id: "16", name: "Service 16", price: 1600 },
-    "17": { id: "17", name: "Service 17", price: 1700 },
-    "18": { id: "18", name: "Service 18", price: 1800 },
-    "19": { id: "19", name: "Service 19", price: 1900 },
-    "20": { id: "20", name: "Service 20", price: 2000 },
-    "21": { id: "21", name: "Service 21", price: 2100 },
-    "22": { id: "22", name: "Service 22", price: 2200 },
-    "23": { id: "23", name: "Service 23", price: 2300 },
-    "24": { id: "24", name: "Service 24", price: 2400 },
-    "25": { id: "25", name: "Service 25", price: 2500 },
-    "26": { id: "26", name: "Service 26", price: 2600 },
+const getBookingTypeColor = (type: string) => {
+    switch (type) {
+        case 'homeService':
+            return 'bg-purple-100 text-purple-800 hover:bg-purple-200'
+        case 'walkInService':
+            return 'bg-orange-100 text-orange-800 hover:bg-orange-200'
+        default:
+            return 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+    }
 }
 
-export const columns: ColumnDef<Appointment>[] = [
+export const columns: ColumnDef<AppointmentTableRow>[] = [
     {
         accessorKey: "no",
-        header: ({ column }) => (
-            <DataTableColumnHeader column={column} title="NO" />
-        ),
+        header: "No.",
+        cell: ({ row }) => <div className="font-medium">{row.index + 1}</div>,
+        // cell: ({ row }) => <div className="font-medium">{row.getValue("no")}</div>,
     },
     {
         accessorKey: "customerName",
-        header: ({ column }) => (
-            <DataTableColumnHeader column={column} title="Customer Name" />
-        ),
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Customer
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            )
+        },
+        cell: ({ row }) => <div className="font-medium">{row.getValue("customerName")}</div>,
+    },
+    {
+        accessorKey: "staffName",
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Staff
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            )
+        },
+        cell: ({ row }) => <div>{row.getValue("staffName")}</div>,
+    },
+    {
+        accessorKey: "services",
+        header: "Services",
+        cell: ({ row }) => {
+            const services = row.getValue("services") as any[]
+            return (
+                <div className="flex flex-wrap gap-1">
+                    {services?.map((service, index) => (
+                        <Badge key={index} variant="outline" className="text-xs">
+                            {service.name}
+                        </Badge>
+                    ))}
+                </div>
+            )
+        },
     },
     {
         accessorKey: "date",
-        header: ({ column }) => (
-            <DataTableColumnHeader column={column} title="Date" />
-        ),
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Date
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            )
+        },
         cell: ({ row }) => {
-            return <div className="">{formatDateStr(row.getValue('date'))}</div>
+            const date = new Date(row.getValue("date"))
+            return <div>{date.toLocaleDateString()}</div>
         },
     },
     {
         accessorKey: "startTime",
-        header: ({ column }) => (
-            <DataTableColumnHeader column={column} title="Start Time" />
-        ),
+        header: "Time",
         cell: ({ row }) => {
-            return <div className="">{formatDateStr(row.getValue('startTime'), 'h:m a')}</div>
+            const startTime = new Date(row.getValue("startTime"))
+            const endTime = new Date(row.original.endTime)
+            return (
+                <div className="text-sm">
+                    {startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} -
+                    {endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </div>
+            )
         },
     },
     {
-        accessorKey: "endTime",
-        header: ({ column }) => (
-            <DataTableColumnHeader column={column} title="End Time" />
-        ),
+        accessorKey: "totalTimeframe",
+        header: "Duration",
         cell: ({ row }) => {
-            return <div className="">{formatDateStr(row.getValue('endTime'), 'h:m a')}</div>
+            const minutes = row.getValue("totalTimeframe") as number
+            const hours = Math.floor(minutes / 60)
+            const remainingMinutes = minutes % 60
+
+            if (hours > 0) {
+                return <div>{hours}h {remainingMinutes}m</div>
+            }
+            return <div>{minutes}m</div>
+        },
+    },
+    {
+        accessorKey: "totalPrice",
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Price
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            )
+        },
+        cell: ({ row }) => {
+            const amount = parseFloat(row.getValue("totalPrice"))
+            const formatted = new Intl.NumberFormat("en-US", {
+                style: "currency",
+                currency: "USD",
+            }).format(amount)
+            return <div className="font-medium">{formatted}</div>
         },
     },
     {
         accessorKey: "status",
-        header: ({ column }) => (
-            <DataTableColumnHeader column={column} title="Status" />
-        ),
+        header: "Status",
         cell: ({ row }) => {
-            const status = row.getValue("status") as string;
-
-            // Define different styles for each status
-            const statusColors: Record<string, string> = {
-                booked: "bg-blue-100 text-blue-700",
-                done: "bg-teal-100 text-teal-700",
-                cancelled: "bg-red-100 text-red-700",
-                absent: "bg-yellow-100 text-yellow-700",
-            };
-
+            const status = row.getValue("status") as string
             return (
-                <div className={`px-2 py-1 rounded w-full text-xs text-center font-semibold ${statusColors[status]}`}>
-                    {capitalize(status)}
-                </div>
-            );
+                <Badge className={getStatusColor(status)}>
+                    {status === 'noShow' ? 'No Show' : status.charAt(0).toUpperCase() + status.slice(1)}
+                </Badge>
+            )
         },
     },
-
     {
-        accessorKey: "amount",
-        header: ({ column }) => (
-            <DataTableColumnHeader column={column} title="Amount" />
-        ),
+        accessorKey: "bookingType",
+        header: "Type",
         cell: ({ row }) => {
-            const amount = parseFloat(row.getValue("amount"))
-            const formatted = new Intl.NumberFormat("en-US", {
-                style: "currency",
-                currency: "GHS",
-            }).format(amount)
-
-            return <div className="text-right font-medium">{formatted}</div>
+            const type = row.getValue("bookingType") as string
+            return (
+                <Badge className={getBookingTypeColor(type)}>
+                    {type === 'homeService' ? 'Home Service' : 'Walk-in Service'}
+                </Badge>
+            )
         },
-
     },
-
     {
-        accessorKey: "Actions",
         id: "actions",
+        enableHiding: false,
         cell: ({ row }) => {
             const payment = row.original
 
@@ -222,7 +263,7 @@ export const columns: ColumnDef<Appointment>[] = [
                                 </div>
                                 <div className="flex items-center justify-between px-4 py-2 ">
                                     <span className="text-sm font-semibold">Booking Date</span>
-                                    <span className="text-sm font-medium text-gray-500">{formatDateStr(payment.date, 'eeee • do MMM, yyyy')}</span>
+                                    <span className="text-sm font-medium text-gray-500">{formatDateStr(payment.startTime, 'eeee • do MMM, yyyy')}</span>
                                 </div>
                                 <div className="flex items-center justify-between px-4 py-2 ">
                                     <span className="text-sm font-semibold">Booking Time</span>
