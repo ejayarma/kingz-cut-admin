@@ -169,7 +169,7 @@ export const columns: ColumnDef<AppointmentTableRow>[] = [
             const amount = parseFloat(row.getValue("totalPrice"))
             const formatted = new Intl.NumberFormat("en-US", {
                 style: "currency",
-                currency: "USD",
+                currency: "GHS",
             }).format(amount)
             return <div className="font-medium">{formatted}</div>
         },
