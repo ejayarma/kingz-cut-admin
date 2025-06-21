@@ -13,6 +13,8 @@ import { StaffMember } from '../settings/staff/types';
 import { Service } from '../settings/services/types';
 import { AppointmentService } from '../appointments/appointment-service';
 import { StaffService } from '../settings/staff/firebase-services';
+import CalendarAppointmentService from './calendar-appointment-service';
+import { Button } from '@/components/ui/button';
 
 
 // Date-fns localizer for the calendar
@@ -40,49 +42,6 @@ interface EventComponentProps {
     event: CalendarEvent;
 }
 
-// AppointmentService extension for calendar-specific queries
-class CalendarAppointmentService {
-    // Replace this with your actual AppointmentService instance
-    private appointmentService: AppointmentService; // Replace with your AppointmentService type
-
-    constructor(appointmentService: AppointmentService) {
-        this.appointmentService = appointmentService;
-    }
-
-    async getAppointmentsForTimeRange(startDate: Date, endDate: Date): Promise<Appointment[]> {
-        try {
-            // Convert dates to ISO strings for Firebase query
-            const startTime = startDate.toISOString();
-            const endTime = endDate.toISOString();
-
-            // You'll need to implement this query in your AppointmentService
-            // This is a placeholder - replace with your actual Firebase query
-            const appointments = await this.appointmentService.getAppointmentsByDateRange(startTime, endTime);
-            return appointments;
-        } catch (error) {
-            console.error('Error fetching appointments for time range:', error);
-            return [];
-        }
-    }
-
-    async getAppointmentsForMonth(year: number, month: number): Promise<Appointment[]> {
-        const startDate = startOfMonth(new Date(year, month));
-        const endDate = endOfMonth(new Date(year, month));
-        return this.getAppointmentsForTimeRange(startDate, endDate);
-    }
-
-    async getAppointmentsForWeek(date: Date): Promise<Appointment[]> {
-        const startDate = startOfWeekFn(date);
-        const endDate = endOfWeek(date);
-        return this.getAppointmentsForTimeRange(startDate, endDate);
-    }
-
-    async getAppointmentsForDay(date: Date): Promise<Appointment[]> {
-        const startDate = startOfDay(date);
-        const endDate = endOfDay(date);
-        return this.getAppointmentsForTimeRange(startDate, endDate);
-    }
-}
 
 export default function StaffWorkSchedule() {
     // Current date state - defaults to current date
@@ -94,6 +53,7 @@ export default function StaffWorkSchedule() {
     const [services, setServices] = useState<Service[]>([]);
     const [appointments, setAppointments] = useState<Appointment[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     // UI States
     const [selectedServiceTypes, setSelectedServiceTypes] = useState<string[]>([]);
@@ -142,6 +102,7 @@ export default function StaffWorkSchedule() {
             setServices(servicesData);
             setSelectedStaff(staffData.map(s => s.id));
         } catch (error) {
+            setError('Failed to load data. Please try again.');
             console.error('Error loading data:', error);
         } finally {
             setLoading(false);
@@ -315,9 +276,28 @@ export default function StaffWorkSchedule() {
 
     if (loading) {
         return (
-            <div className="container mx-auto p-4 max-w-7xl">
+            <div className="container mx-auto p-6">
                 <div className="flex items-center justify-center h-64">
-                    <div className="text-lg">Loading schedule...</div>
+                    <div className="text-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto"></div>
+                        <p className="mt-4 text-gray-600">Loading staff schedule...</p>
+                    </div>
+
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="container mx-auto p-6">
+                <div className="flex items-center justify-center h-64">
+                    <div className="text-center">
+                        <p className="text-red-600 mb-4">{error}</p>
+                        <Button onClick={loadData} variant="outline">
+                            Try Again
+                        </Button>
+                    </div>
                 </div>
             </div>
         );

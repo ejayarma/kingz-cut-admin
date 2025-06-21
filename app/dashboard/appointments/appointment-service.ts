@@ -351,8 +351,8 @@ export class AppointmentService {
 
       querySnapshot.forEach((doc) => {
         appointments.push({
-          id: doc.id,
           ...doc.data(),
+          id: doc.id,
         } as Appointment);
       });
 
