@@ -20,6 +20,7 @@ const Navbar = () => {
             <NavLink href="/dashboard">Dashboard</NavLink>
             <NavLink href="/dashboard/appointments">Customer Appointments</NavLink>
             <NavLink href="/dashboard/staff">Staff List</NavLink>
+            <NavLink href="/dashboard/customers">Customer List</NavLink>
             <NavLink href="/dashboard/schedule">Staff Schedule</NavLink>
             <NavLink href="/dashboard/settings">Settings</NavLink>
         </nav>
