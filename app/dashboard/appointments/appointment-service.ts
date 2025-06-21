@@ -22,6 +22,8 @@ import {
 import { db } from "@/utils/firebase.browser";
 
 export class AppointmentService {
+  private collectionName = "appointments";
+
   // Fetch all appointments with populated data
   static async getAppointmentsWithDetails(): Promise<AppointmentTableRow[]> {
     try {
@@ -321,5 +323,127 @@ export class AppointmentService {
       console.error("Error fetching staff:", error);
       return [];
     }
+  }
+
+  /**
+   * Get appointments within a specific date range
+   * @param startTime ISO string of start time
+   * @param endTime ISO string of end time
+   * @returns Promise<Appointment[]>
+   */
+  async getAppointmentsByDateRange(
+    startTime: string,
+    endTime: string
+  ): Promise<Appointment[]> {
+    try {
+      const appointmentsRef = collection(db, this.collectionName);
+
+      // Create query to get appointments within the date range
+      const q = query(
+        appointmentsRef,
+        where("startTime", ">=", startTime),
+        where("startTime", "<=", endTime),
+        orderBy("startTime", "asc")
+      );
+
+      const querySnapshot = await getDocs(q);
+      const appointments: Appointment[] = [];
+
+      querySnapshot.forEach((doc) => {
+        appointments.push({
+          id: doc.id,
+          ...doc.data(),
+        } as Appointment);
+      });
+
+      return appointments;
+    } catch (error) {
+      console.error("Error fetching appointments by date range:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get appointments for a specific month
+   * @param year Full year (e.g., 2025)
+   * @param month Month index (0-11, where 0 = January)
+   * @returns Promise<Appointment[]>
+   */
+  async getAppointmentsForMonth(
+    year: number,
+    month: number
+  ): Promise<Appointment[]> {
+    const startDate = new Date(year, month, 1);
+    const endDate = new Date(year, month + 1, 0, 23, 59, 59, 999);
+
+    return this.getAppointmentsByDateRange(
+      startDate.toISOString(),
+      endDate.toISOString()
+    );
+  }
+
+  /**
+   * Get appointments for a specific week
+   * @param date Any date within the target week
+   * @returns Promise<Appointment[]>
+   */
+  async getAppointmentsForWeek(date: Date): Promise<Appointment[]> {
+    // Get start of week (Sunday)
+    const startOfWeek = new Date(date);
+    startOfWeek.setDate(date.getDate() - date.getDay());
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    // Get end of week (Saturday)
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    endOfWeek.setHours(23, 59, 59, 999);
+
+    return this.getAppointmentsByDateRange(
+      startOfWeek.toISOString(),
+      endOfWeek.toISOString()
+    );
+  }
+
+  /**
+   * Get appointments for a specific day
+   * @param date Target date
+   * @returns Promise<Appointment[]>
+   */
+  async getAppointmentsForDay(date: Date): Promise<Appointment[]> {
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    return this.getAppointmentsByDateRange(
+      startOfDay.toISOString(),
+      endOfDay.toISOString()
+    );
+  }
+
+  /**
+   * Get appointments for current week
+   * @returns Promise<Appointment[]>
+   */
+  async getAppointmentsForCurrentWeek(): Promise<Appointment[]> {
+    return this.getAppointmentsForWeek(new Date());
+  }
+
+  /**
+   * Get appointments for current month
+   * @returns Promise<Appointment[]>
+   */
+  async getAppointmentsForCurrentMonth(): Promise<Appointment[]> {
+    const now = new Date();
+    return this.getAppointmentsForMonth(now.getFullYear(), now.getMonth());
+  }
+
+  /**
+   * Get appointments for today
+   * @returns Promise<Appointment[]>
+   */
+  async getAppointmentsForToday(): Promise<Appointment[]> {
+    return this.getAppointmentsForDay(new Date());
   }
 }
