@@ -5,8 +5,8 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "kingz-cut-admin.vercel.app",
-        pathname: "/*/**",
+        hostname: "**", // allow any domain
+        pathname: "**", // allow any path
       },
     ],
   },
