@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     const res = await fetch("https://api.paystack.co/transaction/initialize", {
       method: "POST",
       headers: {
-        "Authorization": authorization,
+        Authorization: authorization,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
 
     const data = await res.json();
 
-    console.log("auth", authorization, "INIT PAYSTACK RESPONSE:", data);
+    console.log("INIT PAYSTACK RESPONSE:", data);
 
     if (data.status === true) {
       return NextResponse.json(data);
