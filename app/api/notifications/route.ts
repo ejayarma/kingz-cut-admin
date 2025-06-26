@@ -1,30 +1,9 @@
 // app/api/notifications/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { firebaseAdmin } from "@/utils/firebase.admin";
+import { sendSMS } from "@/utils/sms";
 
 // Utility functions
-async function sendSMS(phoneNumber: string, message: string) {
-  try {
-    await fetch(process.env.SMS_API_URL as string, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        // Authorization: `Bearer ${process.env.SMS_API_KEY}`,
-      },
-      body: JSON.stringify({
-        username: process.env.SMS_USERNAME,
-        password: process.env.SMS_PASSWORD,
-        source: process.env.SMS_SOURCE,
-        destination: phoneNumber,
-        message,
-      }),
-    });
-
-    console.log(`SMS sent to ${phoneNumber}`);
-  } catch (error) {
-    console.error("SMS sending error:", error);
-  }
-}
 
 async function sendPushNotification(
   fcmToken: string,
@@ -92,12 +71,32 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const userDoc = await firebaseAdmin
+    // const userData = await firebaseAdmin.auth().getUser(uid);
+    let userData = null;
+
+    // Check in 'customers' collection
+    let customerQuerySnapshot = await firebaseAdmin
       .firestore()
-      .collection("users")
-      .doc(uid)
+      .collection("customers")
+      .where("userId", "==", uid)
+      .limit(1)
       .get();
-    const userData = userDoc.data();
+
+    if (!customerQuerySnapshot.empty) {
+      userData = customerQuerySnapshot.docs[0].data();
+    } else {
+      // Check in 'staff' collection
+      let staffQuerySnapshot = await firebaseAdmin
+        .firestore()
+        .collection("staff")
+        .where("userId", "==", uid)
+        .limit(1)
+        .get();
+
+      if (!staffQuerySnapshot.empty) {
+        userData = staffQuerySnapshot.docs[0].data();
+      }
+    }
 
     if (!userData) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
