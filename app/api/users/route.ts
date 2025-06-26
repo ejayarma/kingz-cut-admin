@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { firebaseAdmin } from "@/utils/firebase.admin";
+import { formatGhanaPhoneToE164, isValidGhanaMobileNumber } from "@/utils/phone-utils";
 
 // GET: List all users
 export async function GET() {
@@ -79,14 +80,44 @@ export async function PUT(request: Request) {
         { status: 400 }
       );
     }
+
     // Construct the update request object
     const updateRequest: any = {};
-    if (updateData.displayName)
+    
+    if (updateData.displayName) {
       updateRequest.displayName = updateData.displayName;
-    if (updateData.email) updateRequest.email = updateData.email;
-    if (updateData.photoURL) updateRequest.photoURL = updateData.photoURL;
-    if (updateData.phoneNumber)
-      updateRequest.phoneNumber = updateData.phoneNumber;
+    }
+    
+    if (updateData.email) {
+      updateRequest.email = updateData.email;
+    }
+    
+    if (updateData.photoURL) {
+      updateRequest.photoURL = updateData.photoURL;
+    }
+    
+    if (updateData.phoneNumber) {
+      try {
+        // Validate and format the Ghana phone number to E.164
+        if (!isValidGhanaMobileNumber(updateData.phoneNumber)) {
+          return NextResponse.json(
+            { message: "Invalid Ghana phone number format" },
+            { status: 400 }
+          );
+        }
+        
+        // Convert to E.164 format for Firebase
+        updateRequest.phoneNumber = formatGhanaPhoneToE164(updateData.phoneNumber);
+        console.log(`Formatted phone: ${updateData.phoneNumber} -> ${updateRequest.phoneNumber}`);
+        
+      } catch (phoneError: any) {
+        console.error("Phone number formatting error:", phoneError);
+        return NextResponse.json(
+          { message: "Invalid phone number format", error: phoneError.message },
+          { status: 400 }
+        );
+      }
+    }
 
     // Update the user using Firebase Admin SDK
     await firebaseAdmin.auth().updateUser(userId, updateRequest);
