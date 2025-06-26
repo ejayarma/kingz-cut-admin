@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
 
     await sendSMS(
       phoneNumber,
-      `You the following code to continue the application: ${otp}`
+      `Use the following code to continue the application: ${otp}`
     );
 
     return NextResponse.json({ message: "OTP sent successfully", otpId });
