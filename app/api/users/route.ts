@@ -66,34 +66,31 @@ export async function POST(req: NextRequest) {
 }
 
 // PUT or PATCH: Update user by UID
-export async function PUT(req: NextRequest) {
+export async function PUT(request: Request) {
   try {
-    const body = await req.json();
-    const { uid, email, displayName, phoneNumber, photoURL } = body;
+    const { userId, updateData } = await request.json();
 
-    if (!uid) {
+    // Validate input
+    if (!userId || typeof userId !== "string") {
       return NextResponse.json(
-        { message: "User UID is required for update" },
+        { message: "Missing or invalid userId" },
         { status: 400 }
       );
     }
+    // Construct the update request object
+    const updateRequest: any = {};
+    if (updateData.displayName)
+      updateRequest.displayName = updateData.displayName;
+    if (updateData.email) updateRequest.email = updateData.email;
+    if (updateData.photoURL) updateRequest.photoURL = updateData.photoURL;
+    if (updateData.phoneNumber)
+      updateRequest.phoneNumber = updateData.phoneNumber;
 
-    const updatedUser = await firebaseAdmin.auth().updateUser(uid, {
-      email,
-      displayName,
-      phoneNumber,
-      photoURL,
-    });
+    // Update the user using Firebase Admin SDK
+    await firebaseAdmin.auth().updateUser(userId, updateRequest);
 
     return NextResponse.json(
-      {
-        message: "User updated successfully",
-        user: {
-          uid: updatedUser.uid,
-          email: updatedUser.email,
-          displayName: updatedUser.displayName,
-        },
-      },
+      { message: "User updated successfully" },
       { status: 200 }
     );
   } catch (error: any) {
