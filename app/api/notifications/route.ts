@@ -116,7 +116,7 @@ export async function POST(req: NextRequest) {
       .collection("notifications")
       .add(notificationData);
 
-    if (userData.phoneNumber) await sendSMS(userData.phoneNumber, message);
+    if (userData.phone) await sendSMS(userData.phone, message);
     if (userData.fcmToken)
       await sendPushNotification(
         userData.fcmToken,
@@ -128,7 +128,7 @@ export async function POST(req: NextRequest) {
       {
         id: docRef.id,
         message: "Notification created successfully",
-        smssent: !!userData.phoneNumber,
+        smssent: !!userData.phone,
         pushSent: !!userData.fcmToken,
       },
       { status: 201 }
