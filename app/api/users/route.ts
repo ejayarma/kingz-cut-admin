@@ -58,6 +58,7 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (error: any) {
+    console.error("Error creating user:", error);
     return NextResponse.json(
       { message: "Failed to create user", error: error.message || error },
       { status: 500 }
@@ -97,6 +98,8 @@ export async function PUT(req: NextRequest) {
       { status: 200 }
     );
   } catch (error: any) {
+    console.error("Error Updating user:", error);
+
     return NextResponse.json(
       { message: "Failed to update user", error: error.message || error },
       { status: 500 }
