@@ -70,6 +70,8 @@ export async function PUT(request: Request) {
   try {
     const { userId, updateData } = await request.json();
 
+    console.log("DATA FROM REQUEST", userId, updateData);
+
     // Validate input
     if (!userId || typeof userId !== "string") {
       return NextResponse.json(
