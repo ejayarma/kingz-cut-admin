@@ -12,10 +12,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const authorization = `Bearer ${process.env.PAYSTACK_SECRET_KEY}`;
     const res = await fetch("https://api.paystack.co/transaction/initialize", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+        "Authorization": authorization,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -28,9 +29,13 @@ export async function POST(req: NextRequest) {
 
     const data = await res.json();
 
-    console.log('INIT PAYSTACK RESPONSE:', data);
+    console.log("auth", authorization, "INIT PAYSTACK RESPONSE:", data);
 
-    return NextResponse.json(data);
+    if (data.status === true) {
+      return NextResponse.json(data);
+    }
+
+    throw new Error(data);
   } catch (error) {
     console.error("Paystack init error:", error);
     return NextResponse.json(

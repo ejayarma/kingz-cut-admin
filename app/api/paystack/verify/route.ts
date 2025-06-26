@@ -11,21 +11,26 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+    const authorization = `Bearer ${process.env.PAYSTACK_SECRET_KEY}`;
 
     const res = await fetch(
       `https://api.paystack.co/transaction/verify/${reference}`,
       {
         headers: {
-          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+          Authorization: authorization,
           "Content-Type": "application/json",
         },
       }
     );
 
     const data = await res.json();
-    console.log("VERIFY PAYSTACK RESPONSE:", data);
+    console.log("auth", authorization, "VERIFY PAYSTACK RESPONSE:", data);
 
-    return NextResponse.json(data);
+    if (data.status === true) {
+      return NextResponse.json(data);
+    }
+
+    throw new Error(data);
   } catch (error) {
     console.error("Paystack verify error:", error);
     return NextResponse.json(
