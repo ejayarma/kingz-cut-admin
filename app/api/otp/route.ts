@@ -5,8 +5,12 @@ import { v4 as uuidv4 } from "uuid";
 
 const OTP_EXPIRY_MINUTES = 5;
 
+// function generateOTP(): string {
+//   return Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit
+// }
+
 function generateOTP(): string {
-  return Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit
+  return Math.floor(1000 + Math.random() * 9000).toString(); // 4-digit
 }
 
 // POST: Send OTP
@@ -35,7 +39,10 @@ export async function POST(req: NextRequest) {
       verified: false,
     });
 
-    await sendSMS(phoneNumber, `Your OTP is: ${otp}`);
+    await sendSMS(
+      phoneNumber,
+      `You the following code to continue the application: ${otp}`
+    );
 
     return NextResponse.json({ message: "OTP sent successfully", otpId });
   } catch (error) {
