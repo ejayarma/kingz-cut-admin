@@ -40,7 +40,7 @@ interface StaffModalProps {
 const staffSchema = z.object({
     name: z.string().min(1, "Name is required"),
     email: z.string().email("Invalid email address"),
-    phone: z.string().min(1, "Phone number is required"),
+    phone: z.string().optional().or(z.string().min(10, "Valid 10 digits Phone number is required").max(10, "Valid 10 digits Phone number is required")),
     services: z.array(z.string()).optional(),
     image: z.string().url("Invalid URL").optional().or(z.literal("")),
     active: z.boolean(),

@@ -10,10 +10,7 @@ import {
   where,
   orderBy,
 } from "firebase/firestore";
-import {
-  createUserWithEmailAndPassword,
-  updateProfile,
-} from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { StaffMember } from "./types";
 import { auth, db } from "@/utils/firebase.browser";
 import { Service } from "../services/types";
@@ -72,7 +69,10 @@ export class StaffService {
   }
 
   // Update staff member and call API for Admin update
-  async updateStaff(id: string, staffData: Partial<StaffMember>): Promise<void> {
+  async updateStaff(
+    id: string,
+    staffData: Partial<StaffMember>
+  ): Promise<void> {
     const now = new Date().toISOString();
 
     try {
@@ -105,7 +105,7 @@ export class StaffService {
               displayName: staffData.name,
               email: staffData.email,
               photoURL: staffData.image,
-              // phoneNumber: staffData.phone,
+              phoneNumber: staffData.phone,
             },
           }),
         });
@@ -115,7 +115,6 @@ export class StaffService {
       throw error;
     }
   }
-
 
   // Delete staff member and associated user account
   async deleteStaff(id: string): Promise<void> {

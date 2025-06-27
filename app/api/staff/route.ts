@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { firebaseAdmin } from "@/utils/firebase.admin";
 import { UpdateRequest } from "firebase-admin/auth";
+import { formatGhanaPhoneToE164 } from "@/utils/phone-utils";
 
 export async function POST(request: Request) {
   try {
@@ -22,7 +23,9 @@ export async function POST(request: Request) {
     if (updateData.email) updateRequest.email = updateData.email;
     if (updateData.photoURL) updateRequest.photoURL = updateData.photoURL;
     if (updateData.phoneNumber)
-      updateRequest.phoneNumber = updateData.phoneNumber;
+      updateRequest.phoneNumber = formatGhanaPhoneToE164(
+        updateData.phoneNumber
+      );
 
     // Update the user using Firebase Admin SDK
     await firebaseAdmin.auth().updateUser(userId, updateRequest);
