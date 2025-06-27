@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     );
 
     const data = await res.json();
-    console.log("auth", authorization, "VERIFY PAYSTACK RESPONSE:", data);
+    console.log("VERIFY PAYSTACK RESPONSE:", data);
 
     if (data.status === true) {
       return NextResponse.json(data);
