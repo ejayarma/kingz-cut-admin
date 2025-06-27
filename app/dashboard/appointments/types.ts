@@ -40,6 +40,8 @@ export interface Appointment {
   totalPrice: number;
   totalTimeframe: number; // in minutes
   bookingType: 'homeService' | 'walkInService';
+  paymentType?: 'cash' | 'mobileMoney' | null;
+  paymentStatus?: 'pending' | 'paid' | 'failed' | null;
   notes: string | null;
   reviewed: boolean;
   createdAt: string;
@@ -50,5 +52,7 @@ export interface Appointment {
 export interface AppointmentTableRow extends Appointment {
   customerName: string;
   staffName: string;
+  customerPhone?: string;
+  staffPhone?: string;
   services: Service[];
 }

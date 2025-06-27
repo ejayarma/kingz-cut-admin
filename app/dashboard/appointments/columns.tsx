@@ -58,7 +58,6 @@ export const columns: ColumnDef<AppointmentTableRow>[] = [
         accessorKey: "no",
         header: "No.",
         cell: ({ row }) => <div className="font-medium">{row.index + 1}</div>,
-        // cell: ({ row }) => <div className="font-medium">{row.getValue("no")}</div>,
     },
     {
         accessorKey: "customerName",
@@ -175,6 +174,11 @@ export const columns: ColumnDef<AppointmentTableRow>[] = [
         },
     },
     {
+        accessorKey: "paymentType",
+        header: "No.",
+        cell: ({ row }) => <div className="font-medium">{row.original.paymentType == 'mobileMoney' ? '📲 Momo' : '💵 Cash'}</div>,
+    },
+    {
         accessorKey: "status",
         header: "Status",
         cell: ({ row }) => {
@@ -202,7 +206,13 @@ export const columns: ColumnDef<AppointmentTableRow>[] = [
         id: "actions",
         enableHiding: false,
         cell: ({ row }) => {
-            const payment = row.original
+            const payment = row.original;
+
+            const appointmentId: string | null = payment.id;
+
+            const receiptId = appointmentId
+                ? appointmentId.substring(0, 6).toUpperCase()
+                : `INV00${row.index + 1}`;
 
             return (
 
@@ -241,7 +251,7 @@ export const columns: ColumnDef<AppointmentTableRow>[] = [
                                 <Image src="/receipt-qr.png" width={100} height={100} alt="qr code" />
                                 <p className="inline-flex  gap-4">
                                     <span className="text-sm font-semibold">Receipt ID</span>
-                                    <span className="text-sm font-medium text-gray-500">#{payment.no}</span>
+                                    <span className="text-sm font-medium text-gray-500">#{receiptId}</span>
                                 </p>
                             </div>
                             <div className="border rounded divide-y">
@@ -259,7 +269,7 @@ export const columns: ColumnDef<AppointmentTableRow>[] = [
                                 </div>
                                 <div className="flex items-center justify-between px-4 py-2 ">
                                     <span className="text-sm font-semibold">Customer Phone</span>
-                                    <span className="text-sm font-medium text-gray-500">0244 444 444</span>
+                                    <span className="text-sm font-medium text-gray-500">{payment.customerPhone || 'N/A'}</span>
                                 </div>
                                 <div className="flex items-center justify-between px-4 py-2 ">
                                     <span className="text-sm font-semibold">Booking Date</span>
@@ -271,7 +281,11 @@ export const columns: ColumnDef<AppointmentTableRow>[] = [
                                 </div>
                                 <div className="flex items-center justify-between px-4 py-2 ">
                                     <span className="text-sm font-semibold">Stylist</span>
-                                    <span className="text-sm font-medium text-gray-500">Jeremy Paul</span>
+                                    <span className="text-sm font-medium text-gray-500">{payment.staffName}</span>
+                                </div>
+                                <div className="flex items-center justify-between px-4 py-2 ">
+                                    <span className="text-sm font-semibold">Stylist Phone</span>
+                                    <span className="text-sm font-medium text-gray-500">{payment.staffPhone || 'N/A'}</span>
                                 </div>
                                 <div className="flex items-center justify-between px-4 py-2 ">
                                     <span className="text-sm font-semibold">Services</span>
@@ -279,7 +293,7 @@ export const columns: ColumnDef<AppointmentTableRow>[] = [
                                 </div>
                                 <div className="flex items-center justify-between px-4 py-2 bg-gray-100">
                                     <span className="text-sm font-bold">Total</span>
-                                    <span className="text-sm font-bold">GHS 15.00</span>
+                                    <span className="text-sm font-bold">GHS {payment.totalPrice.toFixed(2)}</span>
                                 </div>
                             </div>
                         </div>

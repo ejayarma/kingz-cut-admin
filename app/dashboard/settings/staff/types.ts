@@ -5,7 +5,7 @@ export interface StaffMember {
   phone: string;
   services: string[];
   image?: string;
-  // url?: string;
+  totalSales?: number;
   userId?: string; // Reference to the user account
   active: boolean;
   role: "staff" | "admin";

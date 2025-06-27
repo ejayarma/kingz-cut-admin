@@ -60,19 +60,19 @@ export const columns: ColumnDef<StaffMember>[] = [
             <DataTableColumnHeader column={column} title="Phone" />
         ),
     },
-    {
-        accessorKey: "rating",
-        header: ({ column }) => (
-            <DataTableColumnHeader column={column} title="Rating" />
-        ),
-        cell: ({ row }) => {
-            // const sales = parseFloat(row.getValue("sales"))
-            const sales = 0;
-            const formatted = Number(0).toFixed(2);
+    // {
+    //     accessorKey: "rating",
+    //     header: ({ column }) => (
+    //         <DataTableColumnHeader column={column} title="Rating" />
+    //     ),
+    //     cell: ({ row }) => {
+    //         // const sales = parseFloat(row.getValue("sales"))
+    //         const sales = 0;
+    //         const formatted = Number(0).toFixed(2);
 
-            return <div className="font-medium">{formatted}</div>
-        },
-    },
+    //         return <div className="font-medium">{formatted}</div>
+    //     },
+    // },
     {
         accessorKey: "sales",
         header: ({ column }) => (
@@ -80,7 +80,7 @@ export const columns: ColumnDef<StaffMember>[] = [
         ),
         cell: ({ row }) => {
             // const sales = parseFloat(row.getValue("sales"))
-            const sales = 0;
+            const sales = row.original.totalSales || 0;
             const formatted = new Intl.NumberFormat("en-US", {
                 style: "currency",
                 currency: "GHS",

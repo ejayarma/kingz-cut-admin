@@ -20,9 +20,33 @@ import {
   AppointmentTableRow,
 } from "./types";
 import { db } from "@/utils/firebase.browser";
+import { StaffMember } from "../settings/staff/types";
 
 export class AppointmentService {
   private collectionName = "appointments";
+
+
+  // Get all staff members
+    static async getAppointments(): Promise<Appointment[]> {
+  
+      try {
+        const querySnapshot = await getDocs(collection(db, "appointments"));
+  
+        return querySnapshot.docs.map(
+          (doc) =>
+            ({
+              ...doc.data(),
+              id: doc.id,
+            } as Appointment)
+        );
+      } catch (error) {
+        console.error("Error getting staff:", error);
+        throw error;
+      }
+
+    }
+
+
 
   // Fetch all appointments with populated data
   static async getAppointmentsWithDetails(): Promise<AppointmentTableRow[]> {
@@ -43,7 +67,7 @@ export class AppointmentService {
       // Create lookup maps for efficient data retrieval
       const customersMap = new Map<string, Customer>();
       const servicesMap = new Map<string, Service>();
-      const staffMap = new Map<string, Staff>();
+      const staffMap = new Map<string, StaffMember>();
 
       // Populate customers map
       customersSnapshot.docs.forEach((doc) => {
@@ -57,13 +81,13 @@ export class AppointmentService {
 
       // Populate staff map
       staffSnapshot.docs.forEach((doc) => {
-        staffMap.set(doc.id, { id: doc.id, ...doc.data() } as Staff);
+        staffMap.set(doc.id, { id: doc.id, ...doc.data() } as StaffMember);
       });
 
       // Process appointments and populate with related data
       const appointments: AppointmentTableRow[] = appointmentsSnapshot.docs.map(
         (doc, index) => {
-          const appointmentData = { id: doc.id, ...doc.data() } as Appointment;
+          const appointmentData = {  ...doc.data(), id: doc.id } as Appointment;
 
           // Get customer data
           const customer = customersMap.get(appointmentData.customerId);
@@ -93,6 +117,8 @@ export class AppointmentService {
             no: index + 1,
             customerName: customer?.name || "Unknown Customer",
             staffName: staff?.name || "Unknown Staff",
+            customerPhone: customer?.phone || "N/A",
+            staffPhone: staff?.phone || "N/A",
             services,
             totalPrice,
             totalTimeframe,
@@ -142,6 +168,79 @@ export class AppointmentService {
       // Fetch related data
       const [customer, services, staff] = await Promise.all([
         this.getCustomerById(customerId),
+        this.getServicesByIds(Array.from(serviceIds)),
+        this.getStaffByIds(Array.from(staffIds)),
+      ]);
+
+      const servicesMap = new Map(services.map((s) => [s.id, s]));
+      const staffMap = new Map(staff.map((s) => [s.id, s]));
+
+      return appointmentsSnapshot.docs.map((doc, index) => {
+        const appointmentData = { id: doc.id, ...doc.data() } as Appointment;
+
+        const appointmentServices = appointmentData.serviceIds
+          .map((id) => servicesMap.get(id))
+          .filter(Boolean) as Service[];
+
+        const appointmentStaff = staffMap.get(appointmentData.staffId);
+
+        const totalPrice =
+          appointmentData.totalPrice ||
+          appointmentServices.reduce((sum, service) => sum + service.price, 0);
+
+        const totalTimeframe =
+          appointmentData.totalTimeframe ||
+          appointmentServices.reduce(
+            (sum, service) => sum + service.duration,
+            0
+          );
+
+        return {
+          ...appointmentData,
+          no: index + 1,
+          customerName: customer?.name || "Unknown Customer",
+          staffName: appointmentStaff?.name || "Unknown Staff",
+          services: appointmentServices,
+          totalPrice,
+          totalTimeframe,
+          date: appointmentData.startTime.split("T")[0],
+        } as AppointmentTableRow;
+      });
+    } catch (error) {
+      console.error("Error fetching appointments by customer:", error);
+      throw new Error("Failed to fetch customer appointments");
+    }
+  }
+  // Fetch appointments by customer ID
+  static async getAppointmentsByStaff(
+    staffId: string
+  ): Promise<AppointmentTableRow[]> {
+    try {
+      const appointmentsQuery = query(
+        collection(db, "appointments"),
+        where("staffId", "==", staffId),
+        orderBy("startTime", "desc")
+      );
+
+      const appointmentsSnapshot = await getDocs(appointmentsQuery);
+
+      if (appointmentsSnapshot.empty) {
+        return [];
+      }
+
+      // Get all unique service IDs and staff IDs from appointments
+      const serviceIds = new Set<string>();
+      const staffIds = new Set<string>();
+
+      appointmentsSnapshot.docs.forEach((doc) => {
+        const data = doc.data();
+        data.serviceIds?.forEach((id: string) => serviceIds.add(id));
+        if (data.staffId) staffIds.add(data.staffId);
+      });
+
+      // Fetch related data
+      const [customer, services, staff] = await Promise.all([
+        this.getCustomerById(staffId),
         this.getServicesByIds(Array.from(serviceIds)),
         this.getStaffByIds(Array.from(staffIds)),
       ]);

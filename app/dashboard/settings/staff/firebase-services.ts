@@ -14,6 +14,7 @@ import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { StaffMember } from "./types";
 import { auth, db } from "@/utils/firebase.browser";
 import { Service } from "../services/types";
+import { AppointmentService } from "../../appointments/appointment-service";
 
 export class StaffService {
   private staffCollection = collection(db, "staff");
@@ -156,14 +157,23 @@ export class StaffService {
     try {
       const q = query(this.staffCollection, orderBy("createdAt", "desc"));
       const querySnapshot = await getDocs(q);
+      const appointments = await AppointmentService.getAppointments();
 
-      return querySnapshot.docs.map(
-        (doc) =>
-          ({
-            id: doc.id,
-            ...doc.data(),
-          } as StaffMember)
-      );
+      return querySnapshot.docs.map((doc) => {
+        const totalSales = appointments
+          .filter(
+            (appointment) =>
+              appointment.staffId === doc.id &&
+              appointment.status == "completed"
+          )
+          .reduce((sum, appointment) => sum + appointment.totalPrice, 0);
+
+        return {
+          ...doc.data(),
+          id: doc.id,
+          totalSales: totalSales,
+        } as StaffMember;
+      });
     } catch (error) {
       console.error("Error getting staff:", error);
       throw error;
